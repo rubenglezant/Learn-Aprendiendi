@@ -9,10 +9,6 @@ import pandas as pd
 import numpy as np
 import random as rnd
 
-# visualization
-import seaborn as sns
-import matplotlib.pyplot as plt
-
 # machine learning
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC, LinearSVC
@@ -40,7 +36,7 @@ from sklearn.ensemble import VotingClassifier
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_curve, auc, precision_recall_curve, confusion_matrix, classification_report
 
-TAM_VENTANA_SET = 60*24*10
+TAM_VENTANA_SET = 60*24*3
 TAM_VENTANA_NEXT = 60*24*1
 indice = 'EOSBTC'
 
@@ -99,5 +95,6 @@ for i in range(0,len(y_test)):
             contar_win = contar_win + 1
         else:
             contar_lost = contar_lost + 1
-print("\nAccuracy IVERSION is: " + str(contar_win/(contar_win+contar_lost)))
+print("\nAccuracy INVERSION is: " + str(contar_win/(contar_win+contar_lost)))
+print("\nTOTAL INVERSION is: " + str((contar_win+contar_lost)/len(y_test)))
     
