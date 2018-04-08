@@ -35,6 +35,9 @@ from sklearn import metrics
 from sklearn.ensemble import VotingClassifier
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_curve, auc, precision_recall_curve, confusion_matrix, classification_report
+from sklearn.externals import joblib
+
+import gc
 
 TAM_VENTANA_SET = 60*24*3
 TAM_VENTANA_NEXT = 60*24*1
@@ -42,11 +45,18 @@ indice = 'EOSBTC'
 
 print (indice, TAM_VENTANA_SET,TAM_VENTANA_NEXT)
 
-df_read = pd.read_csv('./input/data.txt',sep="|")
+#df_read = pd.read_csv('./input/data.txt',sep="|")
+df_read = pd.read_csv('../getData/data.txt',sep="|")
 
 df = df_read[df_read['Indice']==indice]
 
 closes = df['Price'].values
+
+closes = closes[-12000:]
+
+del df_read
+del df
+gc.collect()
 
 data_X = []
 data_y = []
@@ -97,4 +107,8 @@ for i in range(0,len(y_test)):
             contar_lost = contar_lost + 1
 print("\nAccuracy INVERSION is: " + str(contar_win/(contar_win+contar_lost)))
 print("\nTOTAL INVERSION is: " + str((contar_win+contar_lost)/len(y_test)))
-    
+
+# Si estamos por encima del 95 creamos el fichero para invertir
+a = contar_win/(contar_win+contar_lost)
+if (a>0.95):
+    joblib.dump(dt_clf, indice+'.pkl')
