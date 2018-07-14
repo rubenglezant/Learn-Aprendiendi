@@ -41,18 +41,18 @@ import gc
 
 TAM_VENTANA_SET = 60*24*3
 TAM_VENTANA_NEXT = 60*24*1
-indice = 'EOSBTC'
+indice = 'VENBTC'
 
 print (indice, TAM_VENTANA_SET,TAM_VENTANA_NEXT)
 
-#df_read = pd.read_csv('./input/data.txt',sep="|")
-df_read = pd.read_csv('../getData/data.txt',sep="|")
+df_read = pd.read_csv('./input/data.txt',sep="|")
+#df_read = pd.read_csv('../getData/data.txt',sep="|")
 
 df = df_read[df_read['Indice']==indice]
 
 closes = df['Price'].values
 
-closes = closes[-12000:]
+closes = closes[-20000:]
 
 del df_read
 del df
@@ -72,7 +72,7 @@ for i in range(0,len(closes)-(TAM_VENTANA_NEXT+TAM_VENTANA_SET)):
     minimo = min(arrayNext)
     benefWin = (maximo-cierre)/cierre
     benefLoss = (minimo-cierre)/cierre
-    if (benefLoss<-0.10):
+    if (benefLoss<-0.03):
         data_y.append(-1)
     else:
         if (benefWin>0.03):
@@ -112,3 +112,5 @@ print("\nTOTAL INVERSION is: " + str((contar_win+contar_lost)/len(y_test)))
 a = contar_win/(contar_win+contar_lost)
 if (a>0.95):
     joblib.dump(dt_clf, indice+'.pkl')
+
+
