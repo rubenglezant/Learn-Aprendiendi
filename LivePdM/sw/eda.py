@@ -3,12 +3,10 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
-%matplotlib inline  
 
-from pandas.tools.plotting import scatter_matrix
+#from pandas.tools.plotting import scatter_matrix
 
 def explore_col(s, e):
-    
     """Plot 4 main graphs for a single feature.
     
         plot1: histogram 
@@ -58,6 +56,8 @@ def explore_col(s, e):
 
     plt.tight_layout()
     plt.show()
+    
+    return fig
 	
 # Create a function to explore the time series plot each sensor selecting random sample engines
 
@@ -90,52 +90,50 @@ def plot_time_series(s):
     #plt.tight_layout()
     plt.subplots_adjust(wspace=0, hspace=0)
     plt.show()
+    
+    return fig
 
 # ------------------------------------------------------------------------------------
-# Load training data prepared previuosly
+import helperHTML as helper
 
-df_tr_lbl = pd.read_csv('data/train.csv')
+hOut = helper.appendHelper()
+helper.main_title(hOut,"EDA - Analisis de las Variables")
+
+# Load training data prepared previuosly
+df_tr_lbl = pd.read_csv('../input/train.csv')
 df_tr_lbl.head()
 
 #exclude enging id and cycle number from the input features:
-
 featurs = ['setting1','setting2','setting3','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18','s19','s20','s21']
 
 #plot and compare the standard deviation of input features:
-
-df_tr_lbl[featurs].std().plot(kind='bar', figsize=(8,6), title="Features Standard Deviation")
+fig = df_tr_lbl[featurs].std().plot(kind='bar', figsize=(8,6), title="Features Standard Deviation")
+helper.imagen(hOut,fig.figure)
 
 # plot and compare the log standard deviation of input features:
-
-df_tr_lbl[featurs].std().plot(kind='bar', figsize=(8,6), logy=True,title="Features Standard Deviation (log)")
+fig = df_tr_lbl[featurs].std().plot(kind='bar', figsize=(8,6), logy=True,title="Features Standard Deviation (log)")
+helper.imagen(hOut,fig.figure)
 
 # get ordered list of top variance features:
-
 featurs_top_var = df_tr_lbl[featurs].std().sort_values(ascending=False)
 featurs_top_var
 
 # get ordered list features correlation with regression label ttf
-
 df_tr_lbl[featurs].corrwith(df_tr_lbl.ttf).sort_values(ascending=False)
 
 # list of features having low or no correlation with regression label ttf and very low or no variance
 # These features will be target for removal in feature selection
-
 low_cor_featrs = ['setting3', 's1', 's10', 's18','s19','s16','s5', 'setting2', 'setting1']
 df_tr_lbl[low_cor_featrs].describe()
 
 # list of features having high correlation with regression label ttf
-
 correl_featurs = ['s12', 's7', 's21', 's20', 's6', 's14', 's9', 's13', 's8', 's3', 's17', 's2', 's15', 's4', 's11']
-
 df_tr_lbl[correl_featurs].describe()
 
 # add the regression label 'ttf' to the list of high corr features 
-
 correl_featurs_lbl = correl_featurs + ['ttf']
 
 # plot a heatmap to display +ve and -ve correlation among features and regression label:
-
 import seaborn as sns
 cm = np.corrcoef(df_tr_lbl[correl_featurs_lbl].values.T)
 sns.set(font_scale=1.0)
@@ -143,24 +141,35 @@ fig = plt.figure(figsize=(10, 8))
 hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.2f', annot_kws={'size': 8}, yticklabels=correl_featurs_lbl, xticklabels=correl_featurs_lbl)
 plt.title('Features Correlation Heatmap')
 plt.show()
+# TODO: Revisar porqu no la almacena por algun motivo
+helper.imagen(hOut,plt)
 
 #reset matplotlib original theme
-
 sns.reset_orig()
 
-#create scatter matrix to disply relatiohships and distribution among features and regression label
+#helper.closeHelper(hOut)
 
-scatter_matrix(df_tr_lbl[correl_featurs_lbl], alpha=0.2, figsize=(20, 20), diagonal='kde')
+#create scatter matrix to disply relatiohships and distribution among features and regression label
+#scatter_matrix(df_tr_lbl[correl_featurs_lbl], alpha=0.2, figsize=(20, 20), diagonal='kde')
 
 # print stat for binary classification label
 print(df_tr_lbl['label_bnc'].value_counts())
 print('\nNegaitve samples =  {0:.0%}'.format(df_tr_lbl['label_bnc'].value_counts()[0]/df_tr_lbl['label_bnc'].count()))
-print('\nPosiitve samples =  {0:.0%}'.format(df_tr_lbl['label_bnc'].value_counts()[1]/df_tr_lbl['label_bnc'].count()))
+print('\nPositve samples =  {0:.0%}'.format(df_tr_lbl['label_bnc'].value_counts()[1]/df_tr_lbl['label_bnc'].count()))
 
 # print stat for multiclass classification label
-
 print(df_tr_lbl['label_mcc'].value_counts())
 print('\nClass 0 samples =  {0:.0%}'.format(df_tr_lbl['label_mcc'].value_counts()[0]/df_tr_lbl['label_mcc'].count()))
 print('\nClass 1 samples =  {0:.0%}'.format(df_tr_lbl['label_mcc'].value_counts()[1]/df_tr_lbl['label_mcc'].count()))
 print('\nClass 2 samples =  {0:.0%}'.format(df_tr_lbl['label_mcc'].value_counts()[2]/df_tr_lbl['label_mcc'].count()))
+
+# TODO: Deberiamos pintar todas las varaibles
+fig = explore_col("s9", 100)
+helper.imagen(hOut,fig)
+#helper.closeHelper(hOut)
+
+fig = plot_time_series('s9')
+helper.imagen(hOut,fig)
+
+helper.close_withHTMLopen(hOut)
 

@@ -214,3 +214,5 @@ df_test.dtypes
 
 # save the test data to csv file for later use
 df_test.to_csv('../input/test.csv', index=False)
+
+helper.close_withHTMLopen(hOut)

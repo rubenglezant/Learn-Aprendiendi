@@ -1,10 +1,8 @@
 import pandas as pd
 import numpy as np
 
-
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
-%matplotlib inline  
 
 from sklearn import metrics
 
@@ -149,7 +147,8 @@ def bin_class_metrics(model, y_test, y_pred, y_score, print_out=True, plot_out=T
         print('-----------------------------------------------------------')
         print(model, '\n')
         print('Confusion Matrix:')
-        print(metrics.confusion_matrix(y_test, y_pred))
+        s = str(metrics.confusion_matrix(y_test, y_pred))
+        helper.title_text(hOut,'Confusion Matrix:',s)
         print('\nClassification Report:')
         print(metrics.classification_report(y_test, y_pred))
         print('\nMetrics:')
@@ -195,17 +194,27 @@ def bin_class_metrics(model, y_test, y_pred, y_score, print_out=True, plot_out=T
         ax4.set_xlabel('Threshold')  
         ax4.set_ylabel('%')
         ax4.legend(loc='lower left', fontsize='small')
+        
+        helper.imagen(hOut,fig)
 
     return  df_metrics, df_roc_thresh, df_prc_thresh
 	
 # ------------------------------------------------------------------------------
+import helperHTML as helper
+
+hOut = helper.appendHelper()
+helper.main_title(hOut,"ML - Entrenamiento y TEST")
+
+helper.title_3(hOut,"Carga de Datos")
 # load training data prepared previously
-df_train = pd.read_csv('data/train.csv')
-df_train.head()
+df_train = pd.read_csv('../input/train.csv')
+s = df_train.shape
+helper.text(hOut,"Datos de Entrenamiento "+str(s))
 
 # load test data prepared previously
-df_test = pd.read_csv('data/test.csv')
-df_test.head()
+df_test = pd.read_csv('../input/test.csv')
+s = df_test.shape
+helper.text(hOut,"Datos de Test "+str(s))
 
 # original features
 features_orig = ['setting1','setting2','setting3','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18','s19','s20','s21']
@@ -216,6 +225,7 @@ features_extr = ['setting1', 'setting2', 'setting3', 's1', 's2', 's3', 's4', 's5
 y_train = df_train['label_bnc']
 y_test = df_test['label_bnc']
 
+helper.title_2(hOut,"Pruebas de los Modelos")
 # MODELO 1
 model = 'Logistic Regression B'
 clf_lgrb = LogisticRegression(random_state=123)
@@ -225,6 +235,8 @@ gs_score = 'roc_auc'
 clf_lgrb, pred_lgrb = bin_classify(model, clf_lgrb, features_orig, params=gs_params, score=gs_score)
 print('\nBest Parameters:\n',clf_lgrb)
 
+helper.title_3(hOut,model)
+helper.title_text(hOut,'\nBest Parameters:\n',str(clf_lgrb))
 metrics_lgrb, roc_lgrb, prc_lgrb = bin_class_metrics(model, y_test, pred_lgrb.y_pred, pred_lgrb.y_score, print_out=True, plot_out=True)
 
 # MODELO 2
@@ -236,4 +248,13 @@ gs_score = 'roc_auc'
 clf_lgra, pred_lgra = bin_classify(model, clf_lgra, features_extr, params=gs_params, score=gs_score)
 print('\nBest Parameters:\n',clf_lgra)
 
+helper.title_3(hOut,model)
+helper.title_text(hOut,'\nBest Parameters:\n',str(clf_lgra))
 metrics_lgra, roc_lgra, prc_lgra = bin_class_metrics(model, y_test, pred_lgra.y_pred, pred_lgra.y_score, print_out=True, plot_out=True)
+
+# AGREGADOS
+helper.main_title(hOut,"RESUMEN")
+metrics_lgr = pd.concat([metrics_lgrb, metrics_lgra], axis=1)
+metrics_lgr
+
+helper.close_withHTMLopen(hOut)
